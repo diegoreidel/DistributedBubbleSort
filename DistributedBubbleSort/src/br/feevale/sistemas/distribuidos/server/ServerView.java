@@ -47,7 +47,6 @@ public class ServerView extends JFrame
         btnDelegateAllJobs.setEnabled(Boolean.FALSE);
         btnDelegateAllJobs.addActionListener(e -> btnDelegateAllJobsActionPerformed());
 
-
         GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -83,7 +82,7 @@ public class ServerView extends JFrame
     {
         try
         {
-            server = new ServerImpl();
+            server = new ServerImpl(this);
             Registry r = LocateRegistry.createRegistry(8088);
             String uri = txtURI.getText();
             Naming.rebind(uri, server);
@@ -100,10 +99,17 @@ public class ServerView extends JFrame
         try
         {
             server.delegateAllJobs();
+            log("Finished delegating jobs.");
         } catch (RemoteException e)
         {
             e.printStackTrace();
         }
+    }
+
+    public void log(String log)
+    {
+        String originalText = txtOutput.getText() + "\n";
+        txtOutput.setText(originalText + log);
     }
 
     public static void main(String[] args)

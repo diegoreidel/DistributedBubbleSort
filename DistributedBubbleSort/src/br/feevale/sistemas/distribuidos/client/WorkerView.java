@@ -144,6 +144,7 @@ public class WorkerView extends JFrame
             worker = new WorkerImpl(this);
             server.registerWorker(worker);
             btnRequestWork.setEnabled(Boolean.TRUE);
+            btnConnect.setEnabled(Boolean.FALSE);
         } catch (Exception e)
         {
             e.printStackTrace();

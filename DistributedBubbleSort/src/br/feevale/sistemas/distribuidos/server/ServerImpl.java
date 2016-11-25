@@ -20,15 +20,16 @@ public class ServerImpl extends UnicastRemoteObject implements Server
     private List<Job> availableJobs;
     private List<Job> concludedJobs;
     private List<Worker> workers;
+    private ServerView view;
 
 
-    public ServerImpl() throws RemoteException
+    public ServerImpl(ServerView view) throws RemoteException
     {
         seedList = createSeedList(LIST_SIZE);
         availableJobs = new ArrayList<>();
         concludedJobs = new ArrayList<>();
         workers = new ArrayList<>();
-
+        this.view = view;
         createJobs(JOB_LOAD);
     }
 
@@ -36,22 +37,26 @@ public class ServerImpl extends UnicastRemoteObject implements Server
     public void registerWorker(Worker worker) throws RemoteException
     {
         workers.add(worker);
+        view.log("Worker " + worker.getUid() + " has connected.");
     }
 
     @Override
     public void removeWorker(Worker worker) throws RemoteException
     {
         workers.remove(worker);
+        view.log("Worker " + worker.getUid() + " has disconnected.");
     }
 
     @Override
     public void delegateWork(Worker worker) throws RemoteException
     {
-        worker.work(availableJobs.remove(0));
+        view.log("Worker " + worker.getUid() + " has asked for a task.");
+        delegateWork(worker, availableJobs.remove(0));
     }
 
     public void delegateWork(Worker worker, Job job) throws RemoteException
     {
+        view.log("Sent worker " + worker.getUid() + " job " + job.getId());
         worker.work(job);
     }
 
@@ -59,14 +64,18 @@ public class ServerImpl extends UnicastRemoteObject implements Server
     public void concludeJob(Job job) throws RemoteException
     {
         concludedJobs.add(job);
+        view.log("Job " + job.getId() + " has been concluded.");
     }
 
     public void delegateAllJobs() throws RemoteException
     {
+        view.log("Started delegating jobs. List size: " +availableJobs.size());
         for (Job job : availableJobs)
         {
             delegateWork(findAvailableWorker(), job);
         }
+        availableJobs.clear();
+        view.log("Finished delegating jobs. List size: " +availableJobs.size());
     }
 
     private ArrayList<Integer> createSeedList(Integer size)
@@ -106,7 +115,6 @@ public class ServerImpl extends UnicastRemoteObject implements Server
                 if (!w.isBusy())
                 {
                     worker = w;
-                    System.out.println("Found worker");
                     break;
                 }
             }

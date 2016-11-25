@@ -10,4 +10,6 @@ public interface Worker extends Remote
     void work(Job job) throws RemoteException;
 
     boolean isBusy() throws RemoteException;
+
+    String getUid() throws RemoteException;
 }

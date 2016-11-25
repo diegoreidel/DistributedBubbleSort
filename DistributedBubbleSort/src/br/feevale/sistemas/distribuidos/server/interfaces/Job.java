@@ -9,4 +9,6 @@ public interface Job extends Remote
     List<Integer> getList() throws RemoteException;
 
     void setList(List<Integer> list) throws RemoteException;
+
+    String getId() throws RemoteException;
 }

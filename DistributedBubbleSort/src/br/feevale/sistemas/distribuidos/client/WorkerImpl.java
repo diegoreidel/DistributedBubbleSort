@@ -6,16 +6,19 @@ import br.feevale.sistemas.distribuidos.client.interfaces.Worker;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
+import java.util.UUID;
 
 public class WorkerImpl extends UnicastRemoteObject implements Worker
 {
     private WorkerView view;
     private boolean busy;
+    private String uid;
 
     public WorkerImpl(WorkerView view) throws RemoteException
     {
         super();
         this.view = view;
+        this.uid = UUID.randomUUID().toString();
     }
 
     @Override
@@ -36,6 +39,12 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker
     public boolean isBusy() throws RemoteException
     {
         return this.busy;
+    }
+
+    @Override
+    public String getUid() throws RemoteException
+    {
+        return this.uid;
     }
 
     private List<Integer> bubbleSort(List<Integer> numbers)
