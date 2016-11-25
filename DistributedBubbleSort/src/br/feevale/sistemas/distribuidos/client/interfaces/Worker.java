@@ -8,4 +8,6 @@ import java.rmi.RemoteException;
 public interface Worker extends Remote
 {
     void work(Job job) throws RemoteException;
+
+    boolean isBusy() throws RemoteException;
 }

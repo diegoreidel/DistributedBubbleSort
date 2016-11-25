@@ -5,8 +5,12 @@ import br.feevale.sistemas.distribuidos.server.interfaces.Job;
 import br.feevale.sistemas.distribuidos.server.interfaces.Server;
 
 import javax.swing.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class WorkerView extends JFrame
 {
@@ -30,12 +34,30 @@ public class WorkerView extends JFrame
         txtOutput.setText(originalText + text);
     }
 
+    public void logStartJog(Job job) throws RemoteException
+    {
+        List<Integer> numbers = job.getList();
+        int size = numbers.size();
+        printText("Worker has started a job: "
+                + getItems(numbers, 0, 3) + " ... " + getItems(numbers, size - 4, size - 1) + " with size " + size);
+    }
+
+    private String getItems(List<Integer> numbers, int from, int to)
+    {
+        return numbers.subList(from, to).stream().map(Object::toString).collect(Collectors.joining(","));
+    }
+
     public void logJob(Job job)
     {
         try
         {
             server.concludeJob(job);
-            printText("Worker has concluded a job.");
+            List<Integer> numbers = job.getList();
+            int size = numbers.size();
+
+            printText("Worker has concluded a job: "
+                    + getItems(numbers, 0, 3) + " ... " + getItems(numbers, size - 4, size - 1) + " with size " + size);
+
         } catch (RemoteException e)
         {
             e.printStackTrace();
@@ -44,6 +66,22 @@ public class WorkerView extends JFrame
 
     private void initComponents()
     {
+        this.addWindowStateListener(
+                new WindowAdapter()
+                {
+                    @Override
+                    public void windowClosing(WindowEvent e)
+                    {
+                        try
+                        {
+                            server.removeWorker(worker);
+                        } catch (RemoteException e1)
+                        {
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+        );
 
         jspScroll = new JScrollPane();
         txtOutput = new JTextArea();

@@ -8,6 +8,10 @@ import java.rmi.RemoteException;
 public interface Server extends Remote
 {
     void registerWorker(Worker worker) throws RemoteException;
+
+    void removeWorker(Worker worker) throws RemoteException;
+
     void delegateWork(Worker worker) throws RemoteException;
+
     void concludeJob(Job job) throws RemoteException;
 }

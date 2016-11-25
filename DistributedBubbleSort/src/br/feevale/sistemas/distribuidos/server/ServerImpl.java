@@ -19,7 +19,7 @@ public class ServerImpl extends UnicastRemoteObject implements Server
 
     private List<Job> availableJobs;
     private List<Job> concludedJobs;
-    private List<Worker> clients;
+    private List<Worker> workers;
 
 
     public ServerImpl() throws RemoteException
@@ -27,7 +27,7 @@ public class ServerImpl extends UnicastRemoteObject implements Server
         seedList = createSeedList(LIST_SIZE);
         availableJobs = new ArrayList<>();
         concludedJobs = new ArrayList<>();
-        clients = new ArrayList<>();
+        workers = new ArrayList<>();
 
         createJobs(JOB_LOAD);
     }
@@ -35,7 +35,13 @@ public class ServerImpl extends UnicastRemoteObject implements Server
     @Override
     public void registerWorker(Worker worker) throws RemoteException
     {
-        clients.add(worker);
+        workers.add(worker);
+    }
+
+    @Override
+    public void removeWorker(Worker worker) throws RemoteException
+    {
+        workers.remove(worker);
     }
 
     @Override
@@ -44,10 +50,23 @@ public class ServerImpl extends UnicastRemoteObject implements Server
         worker.work(availableJobs.remove(0));
     }
 
+    public void delegateWork(Worker worker, Job job) throws RemoteException
+    {
+        worker.work(job);
+    }
+
     @Override
     public void concludeJob(Job job) throws RemoteException
     {
         concludedJobs.add(job);
+    }
+
+    public void delegateAllJobs() throws RemoteException
+    {
+        for (Job job : availableJobs)
+        {
+            delegateWork(findAvailableWorker(), job);
+        }
     }
 
     private ArrayList<Integer> createSeedList(Integer size)
@@ -62,7 +81,8 @@ public class ServerImpl extends UnicastRemoteObject implements Server
 
     private void createJobs(Integer quantity)
     {
-        for (int i = 0; i < quantity; i++){
+        for (int i = 0; i < quantity; i++)
+        {
             ArrayList<Integer> shuffledList = (ArrayList<Integer>) seedList.clone();
             Collections.shuffle(shuffledList);
 
@@ -74,5 +94,24 @@ public class ServerImpl extends UnicastRemoteObject implements Server
                 e.printStackTrace();
             }
         }
+    }
+
+    private Worker findAvailableWorker() throws RemoteException
+    {
+        Worker worker = null;
+        do
+        {
+            for (Worker w : workers)
+            {
+                if (!w.isBusy())
+                {
+                    worker = w;
+                    System.out.println("Found worker");
+                    break;
+                }
+            }
+        } while (worker == null);
+
+        return worker;
     }
 }

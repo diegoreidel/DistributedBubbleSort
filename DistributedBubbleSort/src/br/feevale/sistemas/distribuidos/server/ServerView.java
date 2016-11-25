@@ -1,7 +1,9 @@
 package br.feevale.sistemas.distribuidos.server;
 
+
 import javax.swing.*;
 import java.rmi.Naming;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -10,6 +12,7 @@ public class ServerView extends JFrame
     private ServerImpl server;
 
     private JButton btnCreateServer;
+    private JButton btnDelegateAllJobs;
     private JScrollPane jspScroll;
     private JTextField txtURI;
     private JTextArea txtOutput;
@@ -26,6 +29,7 @@ public class ServerView extends JFrame
         txtOutput = new JTextArea();
         txtURI = new JTextField();
         btnCreateServer = new JButton();
+        btnDelegateAllJobs = new JButton();
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -39,6 +43,10 @@ public class ServerView extends JFrame
         btnCreateServer.setText("Connect");
         btnCreateServer.addActionListener(e -> btnConnectActionPerformed());
 
+        btnDelegateAllJobs.setText("Delegate jobs");
+        btnDelegateAllJobs.setEnabled(Boolean.FALSE);
+        btnDelegateAllJobs.addActionListener(e -> btnDelegateAllJobsActionPerformed());
+
 
         GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -51,7 +59,8 @@ public class ServerView extends JFrame
                                         .addGroup(layout.createSequentialGroup()
                                                 .addComponent(txtURI)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(btnCreateServer)))
+                                                .addComponent(btnCreateServer)
+                                                .addComponent(btnDelegateAllJobs)))
                                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -62,7 +71,8 @@ public class ServerView extends JFrame
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(txtURI, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(btnCreateServer))
+                                        .addComponent(btnCreateServer)
+                                        .addComponent(btnDelegateAllJobs))
                                 .addContainerGap())
         );
 
@@ -82,6 +92,18 @@ public class ServerView extends JFrame
             e.printStackTrace();
         }
         btnCreateServer.setEnabled(Boolean.FALSE);
+        btnDelegateAllJobs.setEnabled(Boolean.TRUE);
+    }
+
+    private void btnDelegateAllJobsActionPerformed()
+    {
+        try
+        {
+            server.delegateAllJobs();
+        } catch (RemoteException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args)
