@@ -15,7 +15,7 @@ public class ServerImpl extends UnicastRemoteObject implements Server
 
     private static ArrayList<Integer> seedList;
     private static final Integer LIST_SIZE = 10000;
-    private static final Integer JOB_LOAD = 10;
+    private static final Integer JOB_LOAD = 20;
 
     private List<Job> availableJobs;
     private List<Job> concludedJobs;
@@ -67,12 +67,22 @@ public class ServerImpl extends UnicastRemoteObject implements Server
         view.log("Job " + job.getId() + " has been concluded.");
     }
 
-    public void delegateAllJobs() throws RemoteException
+    public void delegateAllJobs()
     {
         view.log("Started delegating jobs. List size: " +availableJobs.size());
         for (Job job : availableJobs)
         {
-            delegateWork(findAvailableWorker(), job);
+            new Thread(){
+                public void run(){
+                    try
+                    {
+                        delegateWork(findAvailableWorker(), job);
+                    } catch (RemoteException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
         }
         availableJobs.clear();
         view.log("Finished delegating jobs. List size: " +availableJobs.size());
@@ -105,7 +115,7 @@ public class ServerImpl extends UnicastRemoteObject implements Server
         }
     }
 
-    private Worker findAvailableWorker() throws RemoteException
+    private synchronized Worker findAvailableWorker() throws RemoteException
     {
         Worker worker = null;
         do
@@ -114,12 +124,12 @@ public class ServerImpl extends UnicastRemoteObject implements Server
             {
                 if (!w.isBusy())
                 {
+                    w.setBusy(Boolean.TRUE);
                     worker = w;
                     break;
                 }
             }
         } while (worker == null);
-
         return worker;
     }
 }

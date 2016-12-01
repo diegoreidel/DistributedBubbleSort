@@ -47,6 +47,12 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker
         return this.uid;
     }
 
+    @Override
+    public void setBusy(boolean busy)
+    {
+        this.busy = busy;
+    }
+
     private List<Integer> bubbleSort(List<Integer> numbers)
     {
         Integer size = numbers.size();

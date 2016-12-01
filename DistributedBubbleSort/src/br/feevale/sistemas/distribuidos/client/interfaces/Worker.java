@@ -11,5 +11,7 @@ public interface Worker extends Remote
 
     boolean isBusy() throws RemoteException;
 
+    void setBusy(boolean isBusy) throws RemoteException;
+
     String getUid() throws RemoteException;
 }

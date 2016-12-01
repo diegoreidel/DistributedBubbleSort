@@ -96,14 +96,8 @@ public class ServerView extends JFrame
 
     private void btnDelegateAllJobsActionPerformed()
     {
-        try
-        {
-            server.delegateAllJobs();
-            log("Finished delegating jobs.");
-        } catch (RemoteException e)
-        {
-            e.printStackTrace();
-        }
+        server.delegateAllJobs();
+        log("Finished delegating jobs.");
     }
 
     public void log(String log)
